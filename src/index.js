@@ -4,8 +4,10 @@ import App from './App';
 import { ApolloProvider } from '@apollo/client/react';
 import { ApolloClient, InMemoryCache } from '@apollo/client';
 
+ const uri = 'https://71z1g.sse.codesandbox.io/'; //  Dogs
+
 const client = new ApolloClient({
-  uri: 'https://71z1g.sse.codesandbox.io/',
+  uri,
   cache: new InMemoryCache()
 });
 

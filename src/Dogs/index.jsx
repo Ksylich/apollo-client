@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { gql, useQuery, NetworkStatus } from "@apollo/client";
+import { gql, useQuery, NetworkStatus, useLazyQuery } from "@apollo/client";
 
 const GET_DOGS = gql`
   query GetDogs {
@@ -37,13 +37,16 @@ const Dogs = ({ onDogSelected }) => {
 };
 
 const DogPhoto = ({ breed }) => {
-  const { loading, error, data, refetch, networkStatus } = useQuery(GET_DOG_PHOTO, {
-    variables: { breed },
-    notifyOnNetworkStatusChange: true,
-    // pollInterval: 500,
-  });
+  const { loading, error, data, refetch, networkStatus } = useQuery(
+    GET_DOG_PHOTO,
+    {
+      variables: { breed },
+      notifyOnNetworkStatusChange: true,
+      // pollInterval: 500,
+    }
+  );
 
-  if (networkStatus === NetworkStatus.refetch) return 'Refetching!';
+  if (networkStatus === NetworkStatus.refetch) return "Refetching!";
   if (loading) return null;
   if (error) return `Error! ${error}`;
 
@@ -58,6 +61,28 @@ const DogPhoto = ({ breed }) => {
   );
 };
 
+const DogPhotoLazy = ({ breed }) => {
+  const [getDog, { loading, data }] = useLazyQuery(GET_DOG_PHOTO);
+
+  if (loading) return <p>Loading ...</p>;
+
+  const onGetDog = () => {
+    getDog({ variables: { breed } });
+  };
+
+  return (
+    <div>
+      {data && data.dog && (
+        <img
+          src={data.dog.displayImage}
+          style={{ height: 200, width: 200, margin: "2rem" }}
+        />
+      )}
+      <button onClick={onGetDog}>Click me!</button>
+    </div>
+  );
+};
+
 const DisplayDog = () => {
   const [selectedDog, setSelectedDog] = useState(null);
 
@@ -68,7 +93,8 @@ const DisplayDog = () => {
   return (
     <>
       <Dogs onDogSelected={onDogSelected} />
-      {selectedDog && <DogPhoto breed={selectedDog} />}
+      {/* {selectedDog && <DogPhoto breed={selectedDog} />} */}
+      {selectedDog && <DogPhotoLazy breed={selectedDog} />}
     </>
   );
 };
